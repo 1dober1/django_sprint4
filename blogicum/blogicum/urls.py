@@ -21,7 +21,8 @@ from django.urls import include, path
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(('blog.urls', 'blog'), namespace='blog')),
-    path('pages/', include(('pages.urls', 'pages'), namespace='pages'))
+    path('pages/', include(('pages.urls', 'pages'), namespace='pages')),
+    path('auth/', include('django.contrib.auth.urls')),
 ]
 
 handler404 = 'core.views.page_not_found'
