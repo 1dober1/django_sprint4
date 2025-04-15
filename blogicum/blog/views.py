@@ -18,12 +18,16 @@ def filter_published_posts(queryset):
 
 
 def index(request):
-    template = 'blog/index.html'
     posts = filter_published_posts(
         Post.objects.select_related('category', 'author', 'location')
-    )[:5]
-    context = {'post_list': posts}
-    return render(request, template, context)
+    )
+
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {'page_obj': page_obj}
+    return render(request, 'blog/index.html', context)
 
 
 def post_detail(request, post_id):
@@ -60,7 +64,7 @@ def category_posts(request, category_slug):
 
 def profile(request, username):
     user_profile = get_object_or_404(User, username=username)
-    posts = Post.objects.filter(author=user_profile).order_by('-created_at')
+    posts = Post.objects.filter(author=user_profile).order_by('-pub_date')
 
     paginator = Paginator(posts, 10)
     page_number = request.GET.get('page')
