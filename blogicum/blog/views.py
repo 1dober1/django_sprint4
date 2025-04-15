@@ -3,6 +3,7 @@ from django.contrib.auth.views import LoginView
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.core.paginator import Paginator
 
 from .forms import CustomUserChangeForm
 from .models import Category, Post, User
@@ -59,10 +60,15 @@ def category_posts(request, category_slug):
 
 def profile(request, username):
     user_profile = get_object_or_404(User, username=username)
-    posts = Post.objects.filter(author=user_profile)
+    posts = Post.objects.filter(author=user_profile).order_by('-created_at')
+
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     context = {
         'profile': user_profile,
-        'page_obj': posts
+        'page_obj': page_obj
     }
     return render(request, 'blog/profile.html', context)
 
