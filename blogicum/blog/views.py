@@ -54,9 +54,13 @@ def category_posts(request, category_slug):
             'author', 'category', 'location')
     )
 
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     context = {
         'category': category,
-        'post_list': posts
+        'page_obj': page_obj
     }
 
     return render(request, template_name, context)
