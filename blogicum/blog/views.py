@@ -1,9 +1,11 @@
-from django.shortcuts import render, get_object_or_404
-from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 
-from .models import Post, Category, User
+from .forms import CustomUserChangeForm
+from .models import Category, Post, User
 
 
 def filter_published_posts(queryset):
@@ -69,3 +71,18 @@ class CustomLoginView(LoginView):
     def get_success_url(self):
         username = self.request.user.username  # type: ignore
         return reverse('blog:profile', kwargs={'username': username})
+
+
+@login_required
+def edit_profile(request):
+    if request.method == 'POST':
+        form = CustomUserChangeForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse(
+                'blog:profile',
+                kwargs={'username': request.user.username}
+            ))
+    else:
+        form = CustomUserChangeForm(instance=request.user)
+    return render(request, 'blog/user.html', {'form': form})
