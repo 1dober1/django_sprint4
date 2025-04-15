@@ -19,11 +19,14 @@ from django.urls import include, path, reverse_lazy
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic.edit import CreateView
 
+from blog.views import CustomLoginView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(('blog.urls', 'blog'), namespace='blog')),
     path('pages/', include(('pages.urls', 'pages'), namespace='pages')),
+    path('auth/login/', CustomLoginView.as_view(), name='login'),
     path('auth/', include('django.contrib.auth.urls')),
     path(
         'auth/registration/',

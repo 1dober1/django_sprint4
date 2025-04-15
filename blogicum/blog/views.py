@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404
-
-from .models import Post, Category
-
 from django.utils import timezone
+from django.contrib.auth.views import LoginView
+from django.urls import reverse
+
+from .models import Post, Category, User
 
 
 def filter_published_posts(queryset):
@@ -52,3 +53,19 @@ def category_posts(request, category_slug):
     }
 
     return render(request, template_name, context)
+
+
+def profile(request, username):
+    user_profile = get_object_or_404(User, username=username)
+    posts = Post.objects.filter(author=user_profile)
+    context = {
+        'profile': user_profile,
+        'page_obj': posts
+    }
+    return render(request, 'blog/profile.html', context)
+
+
+class CustomLoginView(LoginView):
+    def get_success_url(self):
+        username = self.request.user.username  # type: ignore
+        return reverse('blog:profile', kwargs={'username': username})
