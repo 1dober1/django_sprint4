@@ -145,3 +145,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 
 LOGIN_URL = 'login'
+
+MEDIA_ROOT = BASE_DIR / 'media'
