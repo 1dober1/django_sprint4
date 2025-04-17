@@ -68,7 +68,14 @@ def category_posts(request, category_slug):
 
 def profile(request, username):
     user_profile = get_object_or_404(User, username=username)
-    posts = Post.objects.filter(author=user_profile).order_by('-pub_date')
+
+    if request.user == user_profile:
+        posts = Post.objects.filter(author=user_profile).order_by('-pub_date')
+    else:
+        posts = Post.objects.filter(
+            author=user_profile,
+            pub_date__lte=timezone.now()
+        ).order_by('-pub_date')
 
     paginator = Paginator(posts, 10)
     page_number = request.GET.get('page')
@@ -110,4 +117,25 @@ def create_post(request):
         post = form.save(commit=False, author=request.user)
         post.save()
         return redirect('blog:profile', username=request.user.username)
+    return render(request, 'blog/create.html', context)
+
+
+@login_required
+def edit_post(request, post_id=None):
+    instance = get_object_or_404(Post, pk=post_id)
+
+    if instance.author != request.user:
+        return redirect('blog:post_detail', post_id=instance.pk)
+
+    form = AddPostForm(
+        request.POST or None,
+        files=request.FILES or None,
+        instance=instance
+    )
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        return redirect('blog:post_detail', post_id=instance.pk)
+
+    context = {'form': form}
     return render(request, 'blog/create.html', context)
