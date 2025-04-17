@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.core.paginator import Paginator
 
-from .forms import CustomUserChangeForm
+from .forms import CustomUserChangeForm, AddPostForm
 from .models import Category, Post, User
 
 
@@ -100,3 +100,14 @@ def edit_profile(request):
     else:
         form = CustomUserChangeForm(instance=request.user)
     return render(request, 'blog/user.html', {'form': form})
+
+
+@login_required
+def create_post(request):
+    form = AddPostForm(request.POST or None, files=request.FILES or None)
+    context = {'form': form}
+    if form.is_valid():
+        post = form.save(commit=False, author=request.user)
+        post.save()
+        return redirect('blog:profile', username=request.user.username)
+    return render(request, 'blog/create.html', context)
