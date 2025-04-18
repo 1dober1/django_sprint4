@@ -1,5 +1,5 @@
 from django import forms
-from .models import User, Post
+from .models import Comment, Post, User
 
 
 class CustomUserChangeForm(forms.ModelForm):
@@ -8,7 +8,7 @@ class CustomUserChangeForm(forms.ModelForm):
         fields = ['username', 'first_name', 'last_name', 'email']
 
 
-class AddPostForm(forms.ModelForm):
+class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         exclude = ['author', 'is_published']
@@ -23,3 +23,9 @@ class AddPostForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('text',)
