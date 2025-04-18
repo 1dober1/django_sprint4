@@ -164,3 +164,28 @@ def add_comment(request, post_id=None):
         comment.save()
 
     return redirect('blog:post_detail', post_id=post_id)
+
+
+@login_required
+def edit_comment(request, post_id=None, comment_id=None):
+    post = get_object_or_404(Post, pk=post_id)
+    comment = get_object_or_404(post.comments, pk=comment_id)
+
+    if comment.author != request.user:
+        return redirect('blog:post_detail', post_id=post_id)
+
+    if request.method == 'POST':
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            return redirect('blog:post_detail', post_id=post_id)
+    else:
+        form = CommentForm(instance=comment)
+
+    context = {
+        'form': form,
+        'post': post,
+        'comment': comment
+    }
+
+    return render(request, 'blog/comment.html', context)
