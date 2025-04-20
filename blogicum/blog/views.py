@@ -34,10 +34,18 @@ def index(request):
 
 def post_detail(request, post_id):
     post = get_object_or_404(
-        filter_published_posts(Post.objects.select_related(
-            'category', 'author', 'location')),
+        Post.objects.select_related('category', 'author', 'location'),
         pk=post_id
     )
+
+    if request.user == post.author:
+        pass
+    else:
+        post = get_object_or_404(
+            filter_published_posts(Post.objects.select_related(
+                'category', 'author', 'location')),
+            pk=post_id
+        )
 
     form = CommentForm()
     comments = post.comments.select_related('author').order_by('created_at')
