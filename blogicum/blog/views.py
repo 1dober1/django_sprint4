@@ -153,6 +153,22 @@ def edit_post(request, post_id=None):
 
 
 @login_required
+def delete_post(request, post_id=None):
+    instance = get_object_or_404(Post, pk=post_id)
+
+    if instance.author != request.user:
+        return redirect('blog:post_detail', post_id=post_id)
+
+    form = PostForm(instance=instance)
+    context = {'form': form}
+    if request.method == 'POST':
+        instance.delete()
+        return redirect('blog:index')
+
+    return render(request, 'blog/create.html', context)
+
+
+@login_required
 def add_comment(request, post_id=None):
     post = get_object_or_404(Post, pk=post_id)
     form = CommentForm(request.POST)
@@ -192,16 +208,19 @@ def edit_comment(request, post_id=None, comment_id=None):
 
 
 @login_required
-def delete_post(request, post_id=None):
-    instance = get_object_or_404(Post, pk=post_id)
+def delete_comment(request, post_id=None, comment_id=None):
+    post = get_object_or_404(Post, pk=post_id)
+    comment = get_object_or_404(post.comments, pk=comment_id)
 
-    if instance.author != request.user:
+    if comment.author != request.user:
         return redirect('blog:post_detail', post_id=post_id)
 
-    form = PostForm(instance=instance)
-    context = {'form': form}
-    if request.method == 'POST':
-        instance.delete()
-        return redirect('blog:index')
+    form = CommentForm(instance=comment)
 
-    return render(request, 'blog/create.html', context)
+    if request.method == 'POST':
+        comment.delete()
+        return redirect('blog:post_detail', post_id=post_id)
+
+    context = {'comment': comment}
+
+    return render(request, 'blog/comment.html', context)
