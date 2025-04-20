@@ -189,3 +189,19 @@ def edit_comment(request, post_id=None, comment_id=None):
     }
 
     return render(request, 'blog/comment.html', context)
+
+
+@login_required
+def delete_post(request, post_id=None):
+    instance = get_object_or_404(Post, pk=post_id)
+
+    if instance.author != request.user:
+        return redirect('blog:post_detail', post_id=post_id)
+
+    form = PostForm(instance=instance)
+    context = {'form': form}
+    if request.method == 'POST':
+        instance.delete()
+        return redirect('blog:index')
+
+    return render(request, 'blog/create.html', context)
