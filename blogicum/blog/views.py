@@ -223,8 +223,6 @@ def delete_comment(request, post_id=None, comment_id=None):
     if comment.author != request.user:
         return redirect('blog:post_detail', post_id=post_id)
 
-    form = CommentForm(instance=comment)
-
     if request.method == 'POST':
         comment.delete()
         return redirect('blog:post_detail', post_id=post_id)
